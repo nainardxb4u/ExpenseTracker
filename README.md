@@ -4,14 +4,14 @@ Android app that plans **daily calories from your current weight and target weig
 
 ## How calories are set
 
-1. Enter **current weight** and **target weight**.
-2. The app chooses the plan automatically:
+1. Enter **current weight** and **target weight**, or tap **Reduce / Gain / Maintain**.
+2. Daily calories are calculated from that gap:
    - Target **below** current → **Reduce** (calorie deficit)
    - Target **above** current → **Gain** (calorie surplus)
    - Weights close → **Maintain**
 3. Resting burn is estimated from age, height, gender, and activity (Mifflin–St Jeor).
 4. The daily target is maintenance plus a safe surplus or deficit (about 0.2–0.75 kg/week), floored so intake does not go below 1200–1500 kcal.
-5. Update current weight later on the **You** tab and tap **Recalculate goal**. Calories follow the remaining gap.
+5. Update current or target weight on **Home** or **You**, then tap **Update calorie target**. Indian meal suggestions follow the new daily budget.
 
 Indian plates (idli, roti + dal, biryani, chaat, and more) are suggested to fit the calories still left today.
 

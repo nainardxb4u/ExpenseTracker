@@ -128,6 +128,43 @@
     };
   }
 
+  function applyIntent(obj, mode) {
+    const w = +obj.weight;
+    if (!w) return;
+    if (mode === "maintain") {
+      obj.targetWeight = w;
+    } else if (mode === "reduce") {
+      if (!(+obj.targetWeight < w - 0.3)) {
+        obj.targetWeight = Math.max(30, +(w - 5).toFixed(1));
+      }
+    } else if (mode === "gain") {
+      if (!(+obj.targetWeight > w + 0.3)) {
+        obj.targetWeight = +(w + 5).toFixed(1);
+      }
+    }
+  }
+
+  function modeLabel(mode) {
+    if (mode === "reduce") return "Reduce";
+    if (mode === "gain") return "Gain";
+    return "Maintain";
+  }
+
+  function breakdownHtml(plan) {
+    const adjClass = plan.dailyAdj < 0 ? "neg" : plan.dailyAdj > 0 ? "pos" : "";
+    const adjText =
+      plan.dailyAdj < 0
+        ? "Deficit to reduce"
+        : plan.dailyAdj > 0
+          ? "Surplus to gain"
+          : "No surplus or deficit";
+    const adjVal = plan.dailyAdj > 0 ? `+${plan.dailyAdj}` : String(plan.dailyAdj);
+    return `
+      <div><span>Calories to hold this weight</span><b>${plan.maintain}</b></div>
+      <div class="${adjClass}"><span>${adjText}</span><b>${adjVal}</b></div>
+      <div class="total"><span>Daily calorie target</span><b>${plan.daily}</b></div>`;
+  }
+
   function applyPlanToProfile() {
     if (!state.profile) return;
     const plan = planFromProfile(state.profile);
@@ -258,17 +295,29 @@
         </div>
         <button class="btn btn-primary" id="o-next">Continue</button>`;
     } else if (onboardStep === 1) {
-      const mode = draft.targetWeight < draft.weight - 0.3 ? "Reduce" : draft.targetWeight > draft.weight + 0.3 ? "Gain" : "Maintain";
+      const preview = planFromProfile({
+        ...draft,
+        calcGender: draft.gender === "other" ? "female" : draft.gender
+      });
       root.innerHTML = `
         <p class="kicker">Step 2 of 4</p>
         <h2>Current and target weight</h2>
-        <p class="lede">Calories are set from this gap: a deficit to reduce, a surplus to gain, maintenance if they match.</p>
-        <div class="grid-2">
+        <p class="lede">Pick Reduce or Gain. Daily calories are calculated from your current weight versus the target.</p>
+        <div class="choice-row" id="o-mode-row">
+          <button type="button" class="choice ${preview.mode === "reduce" ? "on" : ""}" data-intent="reduce">Reduce</button>
+          <button type="button" class="choice ${preview.mode === "maintain" ? "on" : ""}" data-intent="maintain">Maintain</button>
+          <button type="button" class="choice ${preview.mode === "gain" ? "on" : ""}" data-intent="gain">Gain</button>
+        </div>
+        <div class="grid-2" style="margin-top:12px;">
           <div class="field"><label>Current weight (kg)</label><input id="o-weight" type="number" step="0.1" min="30" max="250" value="${draft.weight}" /></div>
           <div class="field"><label>Target weight (kg)</label><input id="o-target" type="number" step="0.1" min="30" max="250" value="${draft.targetWeight}" /></div>
         </div>
         <div class="field"><label>Reach target in (weeks)</label><input id="o-weeks" type="number" min="4" max="52" value="${draft.weeks}" /></div>
-        <div class="goal-preview"><div class="kicker" id="o-mode">${mode}</div><p id="o-preview-txt" style="margin-top:6px;color:var(--muted);font-size:13px;"></p></div>
+        <div class="goal-preview">
+          <div class="kicker" id="o-mode">${modeLabel(preview.mode)}</div>
+          <div class="kcal-break" id="o-break">${breakdownHtml(preview)}</div>
+          <p id="o-preview-txt" style="margin-top:8px;color:var(--muted);font-size:13px;"></p>
+        </div>
         <button class="btn btn-primary" id="o-next">Continue</button>
         <button class="btn btn-ghost" id="o-back">Back</button>`;
       updateOnboardPreview();
@@ -309,10 +358,9 @@
         </div>
         <div class="goal-preview">
           <div class="kicker">${plan.mode.toUpperCase()}</div>
-          <strong>${plan.daily}</strong> <span>kcal / day</span>
+          <div class="kcal-break">${breakdownHtml(plan)}</div>
           <p style="margin-top:8px;font-size:13px;color:var(--muted);">
-            Maintain burn ${plan.maintain} kcal.
-            ${plan.dailyAdj === 0 ? "Eat at maintenance." : plan.dailyAdj < 0 ? `${Math.abs(plan.dailyAdj)} kcal daily deficit to reduce.` : `+${plan.dailyAdj} kcal daily surplus to gain.`}
+            ${plan.dailyAdj === 0 ? "Eat at maintenance." : plan.mode === "reduce" ? `Reduce toward ${draft.targetWeight} kg.` : `Gain toward ${draft.targetWeight} kg.`}
             About ${Math.abs(plan.weekly).toFixed(2)} kg/week.
           </p>
         </div>
@@ -324,6 +372,13 @@
       btn.onclick = () => {
         grabDraft();
         state.draft[btn.dataset.k] = btn.dataset.v;
+        renderOnboard();
+      };
+    });
+    root.querySelectorAll("[data-intent]").forEach((btn) => {
+      btn.onclick = () => {
+        grabDraft();
+        applyIntent(state.draft, btn.dataset.intent);
         renderOnboard();
       };
     });
@@ -355,17 +410,25 @@
   function updateOnboardPreview() {
     const el = document.getElementById("o-preview-txt");
     const modeEl = document.getElementById("o-mode");
+    const breakEl = document.getElementById("o-break");
     if (!el || !state.draft) return;
     const d = state.draft;
-    const diff = +(d.targetWeight - d.weight).toFixed(1);
-    let mode = "Maintain";
-    if (diff <= -0.4) mode = "Reduce";
-    else if (diff >= 0.4) mode = "Gain";
-    if (modeEl) modeEl.textContent = mode;
-    if (mode === "Maintain") el.textContent = "Target matches current weight. Daily calories stay at maintenance.";
-    else if (mode === "Reduce")
-      el.textContent = `${Math.abs(diff)} kg to lose. We will set a calorie deficit so you reduce toward ${d.targetWeight} kg.`;
-    else el.textContent = `${diff} kg to gain. We will set a calorie surplus so you gain toward ${d.targetWeight} kg.`;
+    const plan = planFromProfile({
+      ...d,
+      calcGender: d.gender === "other" ? "female" : d.gender
+    });
+    if (modeEl) modeEl.textContent = modeLabel(plan.mode);
+    if (breakEl) breakEl.innerHTML = breakdownHtml(plan);
+    document.querySelectorAll("#o-mode-row [data-intent]").forEach((b) => {
+      b.classList.toggle("on", b.dataset.intent === plan.mode);
+    });
+    if (plan.mode === "maintain") {
+      el.textContent = "Target matches current weight. Eat at maintenance calories.";
+    } else if (plan.mode === "reduce") {
+      el.textContent = `${plan.abs} kg to reduce. About ${Math.abs(plan.weekly).toFixed(2)} kg/week for ~${plan.weeks} weeks.`;
+    } else {
+      el.textContent = `${plan.abs} kg to gain. About ${Math.abs(plan.weekly).toFixed(2)} kg/week for ~${plan.weeks} weeks.`;
+    }
   }
 
   function grabDraft() {
@@ -538,6 +601,47 @@
     }
   }
 
+  function paintWeightCard(p, plan) {
+    const homeW = document.getElementById("home-weight");
+    const homeT = document.getElementById("home-target");
+    if (document.activeElement !== homeW) homeW.value = p.weight;
+    if (document.activeElement !== homeT) homeT.value = p.targetWeight;
+    document.getElementById("weight-plan-title").textContent =
+      plan.mode === "maintain" ? "Hold this weight" : `${p.weight} kg → ${p.targetWeight} kg`;
+    document.getElementById("weight-mode-pill").textContent = modeLabel(plan.mode);
+    document.getElementById("w-now").textContent = `${p.weight} kg`;
+    document.getElementById("w-target").textContent = `${p.targetWeight} kg`;
+    document.getElementById("w-togo").textContent = plan.mode === "maintain" ? "0 kg" : `${plan.abs} kg`;
+    document.getElementById("weight-bar").style.width = `${plan.progress}%`;
+    document.getElementById("kcal-break").innerHTML = breakdownHtml(plan);
+    document.querySelectorAll("#home-mode-row [data-intent]").forEach((b) => {
+      b.classList.toggle("on", b.dataset.intent === plan.mode);
+    });
+    document.getElementById("weight-note").textContent =
+      plan.mode === "maintain"
+        ? `Eat ${plan.daily} kcal/day to stay at ${p.weight} kg.`
+        : `About ${Math.abs(plan.weekly).toFixed(2)} kg/week, ~${plan.weeks} weeks to ${p.targetWeight} kg.`;
+  }
+
+  function previewFromHomeInputs() {
+    const p = { ...state.profile };
+    p.weight = +document.getElementById("home-weight").value || p.weight;
+    p.targetWeight = +document.getElementById("home-target").value || p.targetWeight;
+    return { p, plan: planFromProfile(p) };
+  }
+
+  function applyHomeWeight() {
+    const { p, plan } = previewFromHomeInputs();
+    if (p.weight < 30 || p.targetWeight < 30) return toast("Enter a valid weight");
+    state.profile.weight = p.weight;
+    state.profile.targetWeight = p.targetWeight;
+    if (!state.weighIns) state.weighIns = {};
+    state.weighIns[todayKey()] = p.weight;
+    applyPlanToProfile();
+    renderMain();
+    toast(`${modeLabel(plan.mode)} plan: ${plan.daily} kcal/day`);
+  }
+
   function renderHome() {
     const p = state.profile;
     const plan = planFromProfile(p);
@@ -549,8 +653,8 @@
     document.getElementById("today-date").textContent = new Date().toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short" });
     document.getElementById("kcal-eaten").textContent = Math.round(t.kcal);
     document.getElementById("kcal-goal").textContent = plan.daily;
-    const modeLabel = plan.mode === "reduce" ? "Reduce" : plan.mode === "gain" ? "Gain" : "Maintain";
-    document.getElementById("goal-type").textContent = modeLabel;
+    const modeName = modeLabel(plan.mode);
+    document.getElementById("goal-type").textContent = modeName;
 
     const eatenPct = Math.min(1.08, t.kcal / plan.daily);
     const ring = document.getElementById("kcal-ring");
@@ -581,24 +685,16 @@
       banner.textContent = `About ${left} kcal left. Choose a lighter Indian option for the next meal.`;
     } else if (log.length === 0) {
       banner.classList.add("ok");
-      banner.textContent = `Eat around ${plan.daily} kcal today to ${plan.mode === "reduce" ? "reduce" : plan.mode === "gain" ? "gain" : "hold"} toward ${p.targetWeight} kg.`;
+      banner.textContent =
+        plan.mode === "maintain"
+          ? `Eat around ${plan.daily} kcal today to hold ${p.weight} kg.`
+          : `Eat around ${plan.daily} kcal today to ${plan.mode} toward ${p.targetWeight} kg.`;
     } else {
       banner.classList.add("ok");
-      banner.textContent = `${left} kcal remaining for a ${modeLabel.toLowerCase()} day.`;
+      banner.textContent = `${left} kcal remaining for a ${modeName.toLowerCase()} day.`;
     }
 
-    document.getElementById("weight-plan-title").textContent =
-      plan.mode === "maintain" ? "Hold this weight" : `Move ${p.weight} → ${p.targetWeight} kg`;
-    document.getElementById("weight-mode-pill").textContent = modeLabel;
-    document.getElementById("w-now").textContent = `${p.weight} kg`;
-    document.getElementById("w-target").textContent = `${p.targetWeight} kg`;
-    document.getElementById("w-togo").textContent = plan.mode === "maintain" ? "0 kg" : `${plan.abs} kg`;
-    document.getElementById("weight-bar").style.width = `${plan.progress}%`;
-    const dir = plan.dailyAdj < 0 ? `${Math.abs(plan.dailyAdj)} kcal less than maintenance` : plan.dailyAdj > 0 ? `${plan.dailyAdj} kcal above maintenance` : "maintenance calories";
-    document.getElementById("weight-note").textContent =
-      plan.mode === "maintain"
-        ? `Daily target ${plan.daily} kcal (${dir}).`
-        : `Daily target ${plan.daily} kcal (${dir}). About ${Math.abs(plan.weekly).toFixed(2)} kg/week, ~${plan.weeks} weeks to target.`;
+    paintWeightCard(p, plan);
 
     const meal = mealNow();
     document.getElementById("suggest-meal").textContent = meal;
@@ -816,7 +912,13 @@
     const plan = planFromProfile(p);
     document.getElementById("profile-card").innerHTML = `
       <div class="field"><label>Name</label><input id="p-name" value="${esc(p.name)}" /></div>
-      <div class="grid-2">
+      <p class="lede">Calories follow current vs target weight. Choose Reduce or Gain, then save.</p>
+      <div class="choice-row" id="p-mode-row">
+        <button type="button" class="choice ${plan.mode === "reduce" ? "on" : ""}" data-intent="reduce">Reduce</button>
+        <button type="button" class="choice ${plan.mode === "maintain" ? "on" : ""}" data-intent="maintain">Maintain</button>
+        <button type="button" class="choice ${plan.mode === "gain" ? "on" : ""}" data-intent="gain">Gain</button>
+      </div>
+      <div class="grid-2" style="margin-top:12px;">
         <div class="field"><label>Current weight (kg)</label><input id="p-weight" type="number" step="0.1" value="${p.weight}" /></div>
         <div class="field"><label>Target weight (kg)</label><input id="p-target" type="number" step="0.1" value="${p.targetWeight}" /></div>
       </div>
@@ -841,18 +943,30 @@
       </div>
       <div class="goal-preview">
         <div class="kicker">${plan.mode.toUpperCase()} PLAN</div>
-        <strong>${plan.daily}</strong> <span>kcal / day</span>
-        <p style="margin-top:8px;font-size:13px;color:var(--muted);">
+        <div class="kcal-break" id="p-break">${breakdownHtml(plan)}</div>
+        <p id="p-preview-txt" style="margin-top:8px;font-size:13px;color:var(--muted);">
           Current ${p.weight} kg → target ${p.targetWeight} kg.
-          Maintenance ${plan.maintain} kcal.
-          ${plan.dailyAdj === 0 ? "No surplus or deficit." : plan.dailyAdj < 0 ? `Deficit ${Math.abs(plan.dailyAdj)} kcal/day to reduce.` : `Surplus +${plan.dailyAdj} kcal/day to gain.`}
         </p>
       </div>`;
+    document.querySelectorAll("#p-mode-row [data-intent]").forEach((btn) => {
+      btn.onclick = () => {
+        const p = formProfile();
+        applyIntent(p, btn.dataset.intent);
+        Object.assign(state.profile, p);
+        renderProfile();
+      };
+    });
+    ["p-weight", "p-target", "p-weeks", "p-height", "p-age", "p-activity"].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("input", previewProfileCalories);
+    });
   }
 
-  function saveProfileEdits() {
-    const p = state.profile;
-    p.name = document.getElementById("p-name").value.trim() || p.name;
+  function formProfile() {
+    const p = { ...state.profile };
+    const name = document.getElementById("p-name");
+    if (!name) return p;
+    p.name = name.value.trim() || p.name;
     p.weight = +document.getElementById("p-weight").value || p.weight;
     p.targetWeight = +document.getElementById("p-target").value || p.targetWeight;
     p.height = +document.getElementById("p-height").value || p.height;
@@ -860,6 +974,25 @@
     p.weeks = +document.getElementById("p-weeks").value || p.weeks;
     p.activity = document.getElementById("p-activity").value;
     p.diet = document.getElementById("p-diet").value;
+    return p;
+  }
+
+  function previewProfileCalories() {
+    const p = formProfile();
+    const plan = planFromProfile(p);
+    const breakEl = document.getElementById("p-break");
+    const txt = document.getElementById("p-preview-txt");
+    if (breakEl) breakEl.innerHTML = breakdownHtml(plan);
+    if (txt) txt.textContent = `Current ${p.weight} kg → target ${p.targetWeight} kg.`;
+    document.querySelectorAll("#p-mode-row [data-intent]").forEach((b) => {
+      b.classList.toggle("on", b.dataset.intent === plan.mode);
+    });
+  }
+
+  function saveProfileEdits() {
+    Object.assign(state.profile, formProfile());
+    if (!state.weighIns) state.weighIns = {};
+    state.weighIns[todayKey()] = state.profile.weight;
     applyPlanToProfile();
     renderMain();
     toast("Calories updated from your weight target");
@@ -903,6 +1036,28 @@
       renderMain();
       toast("Today's log cleared");
     };
+    document.getElementById("btn-apply-weight").onclick = applyHomeWeight;
+    document.getElementById("home-weight").addEventListener("input", () => {
+      const { p, plan } = previewFromHomeInputs();
+      paintWeightCard(p, plan);
+    });
+    document.getElementById("home-target").addEventListener("input", () => {
+      const { p, plan } = previewFromHomeInputs();
+      paintWeightCard(p, plan);
+    });
+    document.querySelectorAll("#home-mode-row [data-intent]").forEach((btn) => {
+      btn.onclick = () => {
+        const { p } = previewFromHomeInputs();
+        applyIntent(p, btn.dataset.intent);
+        document.getElementById("home-weight").value = p.weight;
+        document.getElementById("home-target").value = p.targetWeight;
+        state.profile.weight = p.weight;
+        state.profile.targetWeight = p.targetWeight;
+        applyPlanToProfile();
+        renderMain();
+        toast(`${modeLabel(planFromProfile(p).mode)} plan: ${planFromProfile(p).daily} kcal/day`);
+      };
+    });
     bindAlertControls();
   }
 

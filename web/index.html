@@ -37,10 +37,20 @@
         <div class="card weight-card">
           <div class="weight-head">
             <div>
-              <div class="lbl">Weight plan</div>
+              <div class="lbl">Weight to calories</div>
               <b id="weight-plan-title">Set your target</b>
             </div>
             <span class="pill" id="weight-mode-pill">—</span>
+          </div>
+          <p class="weight-note" style="margin-top:0;margin-bottom:10px;">Enter current and target weight. Calories follow Reduce, Gain, or Maintain.</p>
+          <div class="choice-row" id="home-mode-row">
+            <button type="button" class="choice" data-intent="reduce">Reduce</button>
+            <button type="button" class="choice" data-intent="maintain">Maintain</button>
+            <button type="button" class="choice" data-intent="gain">Gain</button>
+          </div>
+          <div class="grid-2" style="margin-top:12px;">
+            <div class="field"><label>Current weight (kg)</label><input id="home-weight" type="number" step="0.1" min="30" max="250" inputmode="decimal" /></div>
+            <div class="field"><label>Target weight (kg)</label><input id="home-target" type="number" step="0.1" min="30" max="250" inputmode="decimal" /></div>
           </div>
           <div class="weight-nums">
             <div><small>Now</small><b id="w-now">—</b></div>
@@ -48,7 +58,9 @@
             <div><small>To go</small><b id="w-togo">—</b></div>
           </div>
           <div class="weight-bar"><i id="weight-bar"></i></div>
+          <div class="kcal-break" id="kcal-break"></div>
           <p class="weight-note" id="weight-note"></p>
+          <button class="btn btn-primary" id="btn-apply-weight" style="margin-top:12px">Update calorie target</button>
         </div>
         <div class="card">
           <div class="ring-wrap">
