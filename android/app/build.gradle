@@ -1,0 +1,42 @@
+plugins {
+    id "com.android.application"
+}
+
+def keystoreFile = file("keystore.jks")
+
+android {
+    namespace "com.nainar.grocerymate"
+    compileSdk 35
+
+    defaultConfig {
+        applicationId "com.nainar.grocerymate"
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName "1.0"
+    }
+
+    signingConfigs {
+        release {
+            storeFile keystoreFile
+            storePassword "grocerymate"
+            keyAlias "grocery"
+            keyPassword "grocerymate"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.release
+        }
+        debug {
+            signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+}
