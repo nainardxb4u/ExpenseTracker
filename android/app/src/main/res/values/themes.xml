@@ -1,0 +1,8 @@
+<resources>
+    <style name="Theme.DailyCalorie" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/saffron</item>
+        <item name="android:statusBarColor">@color/saffron</item>
+        <item name="android:navigationBarColor">@color/cream</item>
+        <item name="android:windowBackground">@color/cream</item>
+    </style>
+</resources>

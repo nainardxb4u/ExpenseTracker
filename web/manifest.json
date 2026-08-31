@@ -1,0 +1,9 @@
+{
+  "name": "Daily Calorie",
+  "short_name": "Calorie",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f4eee4",
+  "theme_color": "#d35400",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml" }]
+}
