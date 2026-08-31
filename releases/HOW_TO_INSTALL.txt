@@ -1,0 +1,22 @@
+Grocery Mate Android app
+========================
+
+File:    GroceryMate.apk
+Package: com.nainar.grocerymate
+Name:    Grocery Mate
+Needs:   Android 7.0 or newer (works offline)
+
+How to install
+--------------
+1. Copy GroceryMate.apk to your phone (Download, Drive, WhatsApp, USB, etc.).
+2. Open the file on the phone.
+3. If Android asks, allow installing apps from this source.
+4. Tap Install, then Open.
+
+How to use
+----------
+- Current List: type an item and tap Add. Check items you bought.
+- Finish Shopping Trip: saves the list to History.
+- History: past trips, or Clear History to delete them.
+
+Your list and history stay on the phone.

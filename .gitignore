@@ -1,0 +1,7 @@
+# Ignore local SDK path
+/android/local.properties
+/android/.gradle/
+/android/**/build/
+.idea/
+*.iml
+.DS_Store
