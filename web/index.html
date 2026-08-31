@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#d35400" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>Daily Calorie</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json" />
+</head>
+<body>
+  <div class="app-shell">
+    <section id="screen-splash" class="screen active splash">
+      <div class="logo-mark">🔥</div>
+      <h1>Daily Calorie</h1>
+      <p>Set your current and target weight. Calories are planned to help you gain or reduce safely, with Indian meal suggestions and alerts.</p>
+    </section>
+
+    <section id="screen-onboard" class="screen">
+      <div class="onboard">
+        <div class="step-dots" id="step-dots"></div>
+        <div id="onboard-step"></div>
+      </div>
+    </section>
+
+    <section id="screen-main" class="screen">
+      <div id="page-home" class="page">
+        <div class="topbar">
+          <div class="greet">Good <span id="part-of-day">day</span>, <b id="hello-name">there</b></div>
+          <div class="pill" id="today-date"></div>
+        </div>
+        <div id="status-banner" class="alert-banner"></div>
+        <div class="card weight-card">
+          <div class="weight-head">
+            <div>
+              <div class="lbl">Weight plan</div>
+              <b id="weight-plan-title">Set your target</b>
+            </div>
+            <span class="pill" id="weight-mode-pill">—</span>
+          </div>
+          <div class="weight-nums">
+            <div><small>Now</small><b id="w-now">—</b></div>
+            <div><small>Target</small><b id="w-target">—</b></div>
+            <div><small>To go</small><b id="w-togo">—</b></div>
+          </div>
+          <div class="weight-bar"><i id="weight-bar"></i></div>
+          <p class="weight-note" id="weight-note"></p>
+        </div>
+        <div class="card">
+          <div class="ring-wrap">
+            <div class="ring">
+              <svg width="150" height="150" viewBox="0 0 150 150">
+                <circle cx="75" cy="75" r="62" fill="none" stroke="#efe4d2" stroke-width="12" />
+                <circle id="kcal-ring" cx="75" cy="75" r="62" fill="none" stroke="#d35400" stroke-width="12"
+                  stroke-linecap="round" stroke-dasharray="389.6" stroke-dashoffset="389.6" />
+              </svg>
+              <div class="ring-center">
+                <b id="kcal-left">0</b>
+                <small id="kcal-caption">kcal left</small>
+              </div>
+            </div>
+            <div class="stat-col">
+              <div class="stat"><div class="lbl">Eaten</div><div class="val" id="kcal-eaten">0</div></div>
+              <div class="stat"><div class="lbl">Daily target</div><div class="val" id="kcal-goal">0</div></div>
+              <div class="stat"><div class="lbl">Plan</div><div class="val" id="goal-type">Maintain</div></div>
+            </div>
+          </div>
+          <div class="macros">
+            <div class="macro">Protein <div class="bar p"><i id="bar-p"></i></div><small id="txt-p">0 / 0 g</small></div>
+            <div class="macro">Carbs <div class="bar c"><i id="bar-c"></i></div><small id="txt-c">0 / 0 g</small></div>
+            <div class="macro">Fat <div class="bar f"><i id="bar-f"></i></div><small id="txt-f">0 / 0 g</small></div>
+          </div>
+        </div>
+
+        <div class="card suggest-card">
+          <div class="suggest-head">
+            <h3>Suggested Indian <span id="suggest-meal">meal</span></h3>
+            <span id="suggest-remain"></span>
+          </div>
+          <div id="combo-list"></div>
+          <h3 style="margin:12px 0 4px">Quick add</h3>
+          <div id="quick-foods"></div>
+        </div>
+
+        <div class="card">
+          <h3>Today's log</h3>
+          <div id="home-log"></div>
+        </div>
+      </div>
+
+      <div id="page-foods" class="page hidden">
+        <div class="topbar"><div class="greet"><b>Indian foods</b><span>Search and log a serving</span></div></div>
+        <div class="search-wrap"><input id="food-search" type="search" placeholder="Search dosa, roti, biryani..." /></div>
+        <div class="filter-scroll" id="food-filters"></div>
+        <div class="card" id="food-list"></div>
+        <div class="card custom-box">
+          <h3>Custom item</h3>
+          <input id="custom-name" placeholder="Name, e.g. homemade dal" />
+          <div class="grid-2">
+            <input id="custom-kcal" type="number" min="1" placeholder="Calories" />
+            <select id="custom-meal">
+              <option value="breakfast">Breakfast</option>
+              <option value="lunch">Lunch</option>
+              <option value="snack">Snack</option>
+              <option value="dinner">Dinner</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" id="add-custom" style="margin-top:10px">Log custom food</button>
+        </div>
+      </div>
+
+      <div id="page-log" class="page hidden">
+        <div class="topbar"><div class="greet"><b>Daily log</b><span id="log-summary"></span></div></div>
+        <div class="card" id="full-log"></div>
+        <div class="card">
+          <h3>This week</h3>
+          <div class="week" id="week-strip"></div>
+        </div>
+      </div>
+
+      <div id="page-alerts" class="page hidden">
+        <div class="topbar"><div class="greet"><b>Alerts</b><span>Meal reminders and calorie warnings</span></div></div>
+        <div class="card">
+          <div class="toggle-row">
+            <div><b>Meal reminders</b><small>Breakfast, lunch, snack, dinner</small></div>
+            <button class="switch" id="sw-meals" type="button"><i></i></button>
+          </div>
+          <div class="time-grid">
+            <div><label>Breakfast</label><input type="time" id="t-breakfast" /></div>
+            <div><label>Lunch</label><input type="time" id="t-lunch" /></div>
+            <div><label>Snack</label><input type="time" id="t-snack" /></div>
+            <div><label>Dinner</label><input type="time" id="t-dinner" /></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="toggle-row">
+            <div><b>Calorie warning</b><small>Alert at 80% of your daily goal</small></div>
+            <button class="switch" id="sw-warn" type="button"><i></i></button>
+          </div>
+          <div class="toggle-row">
+            <div><b>Over-limit alert</b><small>Alert when you exceed the goal</small></div>
+            <button class="switch" id="sw-over" type="button"><i></i></button>
+          </div>
+          <div class="toggle-row">
+            <div><b>Hydration ping</b><small>Drink water every 2 hours (8am–8pm)</small></div>
+            <button class="switch" id="sw-water" type="button"><i></i></button>
+          </div>
+        </div>
+        <div class="card">
+          <button class="btn btn-primary" id="btn-test-alert">Send test alert</button>
+          <button class="btn btn-ghost" id="btn-save-alerts">Save reminder times</button>
+        </div>
+      </div>
+
+      <div id="page-profile" class="page hidden">
+        <div class="topbar"><div class="greet"><b>Profile</b><span>Goal and body stats</span></div></div>
+        <div class="card" id="profile-card"></div>
+        <div class="card">
+          <button class="btn btn-primary" id="btn-edit-profile">Recalculate goal</button>
+          <button class="btn btn-ghost" id="btn-reset-today">Clear today's log</button>
+        </div>
+      </div>
+
+      <nav class="nav">
+        <button data-page="home" class="on">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-5v-6H10v6H5a1 1 0 0 1-1-1z"/></svg>
+          Home
+        </button>
+        <button data-page="foods">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 12h16M7 5h10l1 7H6zM8 19h8"/><circle cx="8" cy="19" r="1"/><circle cx="16" cy="19" r="1"/></svg>
+          Foods
+        </button>
+        <button data-page="log">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 4v16M4 10h16"/></svg>
+          Log
+        </button>
+        <button data-page="alerts">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"/><path d="M10 21a2 2 0 004 0"/></svg>
+          Alerts
+        </button>
+        <button data-page="profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3"/><path d="M5 20c1.5-3 4-5 7-5s5.5 2 7 5"/></svg>
+          You
+        </button>
+      </nav>
+    </section>
+  </div>
+  <div class="toast" id="toast"></div>
+  <script src="foods.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
