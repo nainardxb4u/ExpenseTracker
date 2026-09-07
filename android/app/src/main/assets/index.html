@@ -474,6 +474,14 @@
       color: var(--muted);
     }
 
+    .item-row.items-mode .qty { display: none; }
+
+    @media (max-width: 400px) {
+      .item-row { gap: 6px; padding: 10px 8px; }
+      .add-week-btn { padding: 8px 8px; font-size: 0.72rem; }
+      .icon-btn { width: 32px; height: 32px; }
+    }
+
     @media (min-width: 600px) {
       .app { border-left: 1px solid var(--line); border-right: 1px solid var(--line); }
       .modal { border-radius: 20px; margin-bottom: 24px; }
@@ -736,13 +744,15 @@
   function itemRowHtml(item, mode) {
     const onList = mode === "items" && state.currentList.some((x) => x.catalogId === item.id);
     return (
-      '<div class="item-row" data-id="' + esc(item.id) + '">' +
+      '<div class="item-row' + (mode === "items" ? " items-mode" : "") + '" data-id="' + esc(item.id) + '">' +
         (mode === "shop"
           ? '<input class="check" type="checkbox" ' + (item.bought ? "checked" : "") + ' data-act="toggle">'
           : "") +
         '<div class="item-main"' + (mode === "shop" ? ' data-act="toggle-row"' : "") + ">" +
           '<div class="item-name' + (item.bought ? " bought" : "") + '">' + esc(item.name) + "</div>" +
-          '<div class="item-meta">' + esc(item.category) + (item.staple && mode === "items" ? " · Staple" : "") + "</div>" +
+          '<div class="item-meta">' + esc(item.category) +
+            (item.qty ? " · " + esc(item.qty) + (item.unit ? " " + esc(item.unit) : "") : "") +
+            (item.staple && mode === "items" ? " · Staple" : "") + "</div>" +
         "</div>" +
         '<div class="qty">' +
           '<button type="button" data-act="dec" aria-label="Decrease">−</button>' +
@@ -751,7 +761,7 @@
         "</div>" +
         (mode === "items"
           ? '<button class="add-week-btn" type="button" data-act="addweek"' + (onList ? " disabled" : "") + ">" +
-              (onList ? "On list" : "Add") + "</button>"
+              (onList ? "Added" : "Add") + "</button>"
           : "") +
         '<button class="icon-btn" type="button" data-act="edit" aria-label="Edit">✎</button>' +
         '<button class="icon-btn danger" type="button" data-act="delete" aria-label="Delete">✕</button>' +
