@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Professional resume of Abdulla Alikanoo I — Systems Engineer with 16+ years of IT infrastructure and operations experience in the UAE." />
+  <title>Abdulla Alikanoo I — Systems Engineer Resume</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #10243d;
+      --navy-mid: #1c3a5c;
+      --gold: #b08d4f;
+      --ink: #1c2430;
+      --muted: #5a6472;
+      --line: #d5dbe3;
+      --chip: #f3f5f8;
+      --paper: #ffffff;
+      --page-w: 210mm;
+      --page-h: 297mm;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: #e8ecf1;
+      color: var(--ink);
+      font-family: "Source Sans 3", "Segoe UI", Helvetica, Arial, sans-serif;
+      font-size: 10.4pt;
+      line-height: 1.42;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 16px;
+      background: rgba(16, 36, 61, 0.94);
+      backdrop-filter: blur(8px);
+    }
+
+    .toolbar button, .toolbar a {
+      appearance: none;
+      border: 0;
+      background: var(--gold);
+      color: var(--navy);
+      font: 600 13px/1 "Source Sans 3", sans-serif;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 10px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .toolbar a {
+      background: transparent;
+      color: #fff;
+      border: 1px solid rgba(255,255,255,0.35);
+    }
+
+    .sheet {
+      width: var(--page-w);
+      min-height: var(--page-h);
+      margin: 24px auto 48px;
+      background: var(--paper);
+      box-shadow: 0 18px 50px rgba(16, 36, 61, 0.18);
+      padding: 16mm 16mm 14mm;
+      position: relative;
+    }
+
+    .sheet::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 7px;
+      background: linear-gradient(90deg, var(--navy) 0 72%, var(--gold) 72% 100%);
+    }
+
+    header {
+      text-align: center;
+      padding-bottom: 11px;
+      border-bottom: 1.5px solid var(--navy);
+    }
+
+    h1 {
+      font-family: "Cormorant Garamond", Georgia, serif;
+      font-size: 28pt;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      line-height: 1;
+      color: var(--navy);
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .title-line {
+      margin-top: 5px;
+      color: var(--gold);
+      font-weight: 600;
+      font-size: 9.6pt;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .contact {
+      margin-top: 7px;
+      font-size: 9.4pt;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    .contact a {
+      color: var(--navy-mid);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    section { margin-top: 13px; }
+
+    h2 {
+      font-size: 9.4pt;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--navy);
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 3px;
+      margin-bottom: 8px;
+    }
+
+    .summary {
+      color: var(--ink);
+      font-size: 10.5pt;
+      line-height: 1.48;
+    }
+
+    .skills {
+      display: grid;
+      grid-template-columns: 118px 1fr;
+      gap: 5px 12px;
+    }
+
+    .skills dt {
+      font-weight: 700;
+      color: var(--navy);
+      font-size: 9.4pt;
+    }
+
+    .skills dd { color: var(--ink); }
+
+    .job { margin-bottom: 11px; }
+
+    .job-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 12px;
+    }
+
+    .job h3 {
+      font-size: 11.2pt;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.2;
+    }
+
+    .company {
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .dates {
+      white-space: nowrap;
+      font-size: 9.3pt;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.02em;
+    }
+
+    .meta {
+      font-size: 9.3pt;
+      color: var(--muted);
+      margin: 1px 0 5px;
+    }
+
+    ul {
+      padding-left: 16px;
+    }
+
+    li {
+      margin-bottom: 3.5px;
+    }
+
+    li::marker { color: var(--gold); }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .edu h3, .certs h3 {
+      font-size: 10.6pt;
+      color: var(--navy);
+      font-weight: 700;
+    }
+
+    .edu p, .certs p {
+      font-size: 9.5pt;
+      color: var(--muted);
+    }
+
+    .edu article, .certs article { margin-bottom: 8px; }
+
+    .extras {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 10px 16px;
+      font-size: 9.6pt;
+    }
+
+    .extras strong {
+      display: block;
+      color: var(--navy);
+      font-size: 9pt;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+
+    footer.note {
+      margin-top: 10px;
+      font-size: 8pt;
+      color: #8a93a0;
+      text-align: center;
+    }
+
+      @media screen and (max-width: 900px) {
+      html, body { background: #fff; }
+      .sheet {
+        width: 100%;
+        min-height: 0;
+        margin: 0;
+        box-shadow: none;
+        padding: 22px 18px 32px;
+      }
+      .job-head, .two-col, .extras, .skills {
+        grid-template-columns: 1fr;
+        display: block;
+      }
+      h1 { font-size: 26pt; white-space: normal; }
+      .dates { display: block; margin-top: 2px; }
+      .skills dt { margin-top: 6px; }
+    }
+
+    @page {
+      size: A4;
+      margin: 0;
+    }
+
+    .print-continue { display: none; }
+
+    @media print {
+      html, body {
+        background: #fff;
+        font-size: 10pt;
+      }
+      .toolbar { display: none !important; }
+      .print-continue {
+        display: block;
+        break-before: page;
+      }
+      .sheet {
+        width: auto;
+        min-height: 0;
+        margin: 0;
+        box-shadow: none;
+        padding: 14mm 15mm 12mm;
+      }
+      a { color: inherit; text-decoration: none; }
+      .job { break-inside: avoid; }
+      footer.note { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar">
+    <button type="button" onclick="window.print()">Print / Save PDF</button>
+    <a href="Abdulla_Alikanoo_Resume.pdf" download>Download PDF</a>
+  </div>
+
+  <main class="sheet">
+    <header>
+      <h1>Abdulla Alikanoo I</h1>
+      <p class="title-line">Systems Engineer · Infrastructure &amp; IT Operations</p>
+      <p class="contact">
+        Dubai, United Arab Emirates ·
+        <a href="tel:+971547910267">+971 54 791 0267</a> ·
+        <a href="tel:+971504778701">+971 50 477 8701</a> ·
+        <a href="mailto:alikanoo@yahoo.com">alikanoo@yahoo.com</a>
+      </p>
+    </header>
+
+    <section>
+      <h2>Professional Summary</h2>
+      <p class="summary">
+        Systems Engineer with <strong>16+ years</strong> of IT infrastructure, systems administration, and enterprise support experience across UAE construction and conglomerate environments. Proven record operating multi-site networks, Windows Server / Hyper-V / Nutanix platforms, FortiGate firewalls, Microsoft 365 and Exchange, Veeam backup, and IT service management for <strong>500+ users</strong>. Microsoft Certified (MCSE, Azure Fundamentals) and ITIL 4 Foundation certified, with a practical focus on availability, security, and timely service delivery.
+      </p>
+    </section>
+
+    <section>
+      <h2>Core Skills</h2>
+      <dl class="skills">
+        <dt>Infrastructure</dt>
+        <dd>Windows Server 2016 / 2012 / 2008 R2 · Hyper-V clustering · Nutanix HCI · HPE BladeSystem C7000 · NAS storage</dd>
+        <dt>Network &amp; Security</dt>
+        <dd>FortiGate 100F / 60F / 40F · FortiClient VPN · Mimecast · Bitdefender · Heimdal · endpoint patching</dd>
+        <dt>Cloud &amp; Identity</dt>
+        <dd>Microsoft 365 admin · Azure AD · Active Directory · Exchange · PowerShell · mailbox lifecycle</dd>
+        <dt>Telephony</dt>
+        <dd>Avaya IP Office Manager · IP Office 500 V2 · Avaya Contact Center Select · Cisco IP Phone</dd>
+        <dt>Operations</dt>
+        <dd>Veeam Backup (disk &amp; tape) · PaperCut MPS · BMC · ManageEngine · ITIL 4 · IT asset management</dd>
+        <dt>Business systems</dt>
+        <dd>SAP · Microsoft Dynamics 365 · Xpedeon · Orbits ERP · CAFM · FSA · biometric access &amp; IP CCTV</dd>
+      </dl>
+    </section>
+
+    <section>
+      <h2>Professional Experience</h2>
+
+      <article class="job">
+        <div class="job-head">
+          <h3>Systems Engineer</h3>
+          <span class="dates">January 2024 – Present</span>
+        </div>
+        <p class="meta"><span class="company">Al Sahel Contracting Co. LLC</span> · Dubai, UAE</p>
+        <ul>
+          <li>Manage and monitor enterprise network and server infrastructure across head office and remote sites, keeping systems patched, available, and current.</li>
+          <li>Administer physical and virtual server backups (disk and tape) with Veeam Backup to protect production workloads.</li>
+          <li>Maintain FortiGate firewalls for head office and all sites; operate and monitor Avaya PABX telephony.</li>
+          <li>Triage and close daily IT service requests by priority; monitor site file servers and attendance systems.</li>
+          <li>Provision and configure new endpoints, keep end-user operating systems current, and register IT assets in ERP with proper tagging.</li>
+          <li>Administer Microsoft Exchange (mailbox creation, performance monitoring) and email security via Mimecast; manage endpoint security with Bitdefender and Heimdal.</li>
+          <li>Deploy and support multifunction printers using PaperCut Managed Print Services.</li>
+        </ul>
+      </article>
+
+      <article class="job">
+        <div class="job-head">
+          <h3>IT Support Engineer — Corporate Team</h3>
+          <span class="dates">September 2017 – January 2024</span>
+        </div>
+        <p class="meta"><span class="company">Al Ghurair Group</span> · Dubai, UAE</p>
+        <ul>
+          <li>Delivered IT end-user and application support for <strong>500+ users</strong> across group business units, corporate offices, and site locations in Dubai and the Northern Emirates.</li>
+          <li>Operated data-center services for servers and branch/site connectivity; supported an HPE BladeSystem C7000 enclosure with 10 blade servers in a clustered Hyper-V environment.</li>
+          <li>Supported Nutanix hyperconverged infrastructure and NAS storage; installed and configured FortiClient VPN and provisioned user access.</li>
+          <li>Resolved helpdesk tickets to SLA using BMC and ManageEngine; maintained IT asset records in ManageEngine.</li>
+          <li>Administered Avaya IP Office and Avaya Contact Center Select for corporate telephony and customer-care operations.</li>
+          <li>Managed the Microsoft 365 admin portal and Azure AD; used PowerShell to standardize user and mailbox configuration.</li>
+          <li>Installed and configured FSA, CAFM, SAP, Xpedeon, and Orbits ERP; supported the Dynamics 365 implementation team.</li>
+          <li>Implemented and supported biometric access control and IP CCTV surveillance.</li>
+        </ul>
+      </article>
+
+      <h2 class="print-continue">Professional Experience continued</h2>
+      <article class="job">
+        <div class="job-head">
+          <h3>IT Support Engineer</h3>
+          <span class="dates">November 2006 – September 2017</span>
+        </div>
+        <p class="meta"><span class="company">ETA Star International</span> · Dubai, UAE</p>
+        <ul>
+          <li>Installed, configured, and maintained computer equipment and peripherals at head office and site offices across Abu Dhabi, Hamriyah Free Zone (Sharjah), Ras Al Khaimah, and Dubai.</li>
+          <li>Provided IT support to ESI divisions and engineering verticals, including domain join, Outlook/email setup, and Active Directory user lifecycle (create, reset, and disable accounts per HR policy).</li>
+          <li>Monitored antivirus, internet, and Outlook services; assembled, installed, and maintained hardware and software, including network/local printers, scanners, and ADSL routers.</li>
+          <li>Maintained master records of domain, internet, email, and SAP users; installed SAP clients and coordinated employee-exit IT NOCs.</li>
+          <li>Configured Cisco IP phones and mobile devices (BlackBerry, iPhone); coordinated with Etisalat and du for provisioning, termination, and billing so Accounts received accurate monthly and half-yearly statements.</li>
+          <li>Maintained the organizational IT asset database and asset-management records.</li>
+        </ul>
+      </article>
+    </section>
+
+    <section class="two-col">
+      <div class="certs">
+        <h2>Certifications</h2>
+        <article>
+          <h3>Microsoft Certified Systems Engineer (MCSE)</h3>
+          <p>Microsoft</p>
+        </article>
+        <article>
+          <h3>ITIL 4 Foundation</h3>
+          <p>AXELOS / PeopleCert</p>
+        </article>
+        <article>
+          <h3>Microsoft Azure Fundamentals</h3>
+          <p>Microsoft Certification ID: 11406262</p>
+        </article>
+      </div>
+      <div class="edu">
+        <h2>Education</h2>
+        <article>
+          <h3>Master of Computer Applications (M.C.A.)</h3>
+          <p>Anna University, Chennai, India</p>
+          <p>2002 – 2005</p>
+        </article>
+        <article>
+          <h3>B.Sc. Computer Science</h3>
+          <p>M.S. University, Tirunelveli, India</p>
+          <p>1999 – 2002</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <h2>Additional Information</h2>
+      <div class="extras">
+        <p><strong>Languages</strong>English · Hindi · Tamil · Malayalam</p>
+        <p><strong>UAE Driving License</strong>Dubai · 1371884 · Expires 19 Jan 2029</p>
+        <p><strong>Personal</strong>19 July 1982 · Dubai, UAE</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
