@@ -14,10 +14,12 @@ How to install
 4. If Android asks, allow installing apps from this source.
 5. Tap Install, then Open.
 
-How to use
-----------
-- This week: check off items you bought. Use + / − for quantity, pencil to edit, X to remove.
-- Items: 28 predefined staples (milk, bread, rice, ...). Add, edit, or delete any item. Staples are copied into each new week. Tap Add to put an extra item on this week's list.
-- History: saved weekly shops. Open a week to see bought vs missed. Copy missed items back to this week.
+How to use each week
+--------------------
+1. Tap "Select from preloaded list" and pick this week's groceries.
+2. Tick each item you bought.
+3. Tap "Save bought & missed".
+4. History keeps bought items and missed (unticked) items for that week.
 
-Your list, items, and weekly history stay on the phone.
+Items tab: add, edit, or delete the preloaded list.
+Your list and weekly history stay on the phone.

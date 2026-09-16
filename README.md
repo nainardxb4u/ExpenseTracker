@@ -13,12 +13,11 @@ Android shopping list for the week. Download the APK, install it on any phone or
 
 See [releases/HOW_TO_INSTALL.txt](releases/HOW_TO_INSTALL.txt) for the same steps.
 
-## What it does
+## How to shop each week
 
-- Starts each week with **predefined staples** (milk, eggs, bread, rice, produce, household, and more).
-- **Add**, **edit**, or **delete** any item, including quantity and category.
-- Check off what you bought on **This week**.
-- **Save this week's shop** to keep a **weekly history** of bought vs missed items.
-- Lists **scroll** inside the screen. The header, save button, and tabs stay put on phones and tablets.
+1. **Select** groceries from the preloaded list (milk, bread, rice, and the rest).
+2. **Tick** each item you bought.
+3. Tap **Save bought & missed**.
+4. **History** stores ticked items as bought and unticked items as missed.
 
-Data stays on the device (no account, no internet required).
+You can add, edit, or delete items on the Items tab. Lists scroll on phones and tablets. Data stays on the device.

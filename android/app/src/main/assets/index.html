@@ -231,10 +231,31 @@
     .item-row:last-child { border-bottom: none; }
 
     .check {
-      width: 26px;
-      height: 26px;
-      flex: 0 0 26px;
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
       accent-color: var(--primary);
+    }
+
+    .tick-wrap {
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
+      border: 2px solid #C5D0CA;
+      border-radius: 8px;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      color: transparent;
+      font-weight: 800;
+    }
+
+    .item-row.is-bought .tick-wrap {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
     }
 
     .item-main {
@@ -352,6 +373,16 @@
       font-size: 0.92rem;
     }
 
+    .history-group-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin: 10px 0 4px;
+    }
+    .history-group-title.ok { color: var(--bought); }
+    .history-group-title.no { color: var(--missed); }
+
     .ok { color: var(--bought); font-weight: 700; }
     .no { color: var(--missed); font-weight: 700; }
 
@@ -433,6 +464,40 @@
       margin-top: 8px;
     }
 
+    .pick-btn { width: 100%; }
+
+    .picker-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      text-align: left;
+      background: var(--card);
+      border: none;
+      border-bottom: 1px solid var(--line);
+      padding: 12px;
+      min-height: 52px;
+    }
+
+    .picker-item .mark {
+      width: 26px;
+      height: 26px;
+      border: 2px solid #C5D0CA;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: transparent;
+      font-weight: 800;
+      flex: 0 0 26px;
+    }
+
+    .picker-item.picked .mark {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #fff;
+    }
+
     .chip-row {
       display: flex;
       flex-wrap: wrap;
@@ -507,10 +572,13 @@
 
   <div class="panels">
     <section class="panel active" id="panel-shop">
+      <div class="sticky-form">
+        <button class="btn btn-primary pick-btn" id="pickItemsBtn" type="button">Select from preloaded list</button>
+      </div>
       <div class="scroll" id="shopScroll"></div>
       <div class="footer-actions">
-        <button class="btn btn-dark" id="finishBtn" type="button">Save this week's shop</button>
-        <p class="hint">Checked items are marked bought. Saving archives this week and starts the next list from your staples.</p>
+        <button class="btn btn-dark" id="finishBtn" type="button">Save bought &amp; missed</button>
+        <p class="hint">Tick each item you bought. Save stores ticked items as bought and the rest as missed in History.</p>
       </div>
     </section>
 
@@ -520,7 +588,7 @@
           <input id="newItemName" type="text" maxlength="60" placeholder="Add item, e.g. Milk" autocomplete="off">
           <button class="btn btn-primary" id="addItemBtn" type="button">Add</button>
         </div>
-        <p class="hint">Staples are copied into each new week. Edit or delete any item anytime.</p>
+        <p class="hint">This is your preloaded list. Tap Add to put an item on this week, then tick bought items and save.</p>
       </div>
       <div class="scroll" id="itemsScroll"></div>
     </section>
@@ -556,9 +624,9 @@
       <label for="editUnit">Unit</label>
       <input id="editUnit" type="text" maxlength="16" placeholder="pcs, kg, L, pack">
     </div>
-    <div class="field">
+    <div class="field" id="stapleField" style="display:none">
       <label>
-        <input id="editStaple" type="checkbox"> Include as a weekly staple
+        <input id="editStaple" type="checkbox"> Keep in preloaded list
       </label>
     </div>
     <div class="modal-actions">
@@ -568,9 +636,21 @@
   </div>
 </div>
 
+<div class="modal-backdrop" id="pickerBackdrop">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pickerTitle">
+    <h2 id="pickerTitle">Select this week's items</h2>
+    <p class="hint">Tap items from the preloaded list. Selected items go on This week so you can tick what you bought.</p>
+    <div id="pickerList"></div>
+    <div class="modal-actions">
+      <button class="btn" type="button" id="cancelPicker" style="background:#eef2f0">Close</button>
+      <button class="btn btn-primary" type="button" id="donePicker">Done</button>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
-  const STORAGE_KEY = "weeklyGrocery.v1";
+  const STORAGE_KEY = "weeklyGrocery.v2";
   const CATEGORIES = ["Dairy", "Bakery", "Produce", "Protein", "Pantry", "Household", "Other"];
   const DEFAULT_ITEMS = [
     ["Milk", "Dairy", 2, "L"],
@@ -651,36 +731,29 @@
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   }
 
+  function archiveCurrentWeek(auto) {
+    if (!state.currentList.length) return;
+    state.history.push({
+      id: uid(),
+      weekKey: state.currentWeekKey,
+      label: state.currentWeekLabel || state.currentWeekKey,
+      finishedAt: new Date().toISOString(),
+      auto: !!auto,
+      items: state.currentList.map((i) => ({ ...i }))
+    });
+  }
+
   function ensureCurrentWeek() {
     const now = weekInfo();
     if (state.currentWeekKey === now.key) return;
-    if (state.currentWeekKey && state.currentList.some((i) => i.bought)) {
-      state.history.push({
-        id: uid(),
-        weekKey: state.currentWeekKey,
-        label: state.currentWeekLabel || state.currentWeekKey,
-        finishedAt: new Date().toISOString(),
-        auto: true,
-        items: state.currentList.map((i) => ({ ...i }))
-      });
-    }
+    if (state.currentWeekKey) archiveCurrentWeek(true);
     startWeek(now);
   }
 
   function startWeek(info) {
     state.currentWeekKey = info.key;
     state.currentWeekLabel = info.label;
-    state.currentList = state.catalog
-      .filter((c) => c.staple)
-      .map((c) => ({
-        id: uid(),
-        catalogId: c.id,
-        name: c.name,
-        category: c.category,
-        qty: c.qty,
-        unit: c.unit,
-        bought: false
-      }));
+    state.currentList = [];
     save();
   }
 
@@ -724,7 +797,7 @@
     updateHeader();
     const root = document.getElementById("shopScroll");
     if (!state.currentList.length) {
-      root.innerHTML = '<div class="empty"><h3>No items this week</h3><p>Add staples in Items, or tap Add there to put something on this week\'s list.</p></div>';
+      root.innerHTML = '<div class="empty"><h3>Select this week\'s items</h3><p>Pick groceries from the preloaded list. Tick each one you bought, then save. Unticked items are stored as missed.</p><p><button class="btn btn-primary" type="button" id="emptyPickBtn">Select from preloaded list</button></p></div>';
       return;
     }
     const groups = groupByCategory(state.currentList);
@@ -744,9 +817,9 @@
   function itemRowHtml(item, mode) {
     const onList = mode === "items" && state.currentList.some((x) => x.catalogId === item.id);
     return (
-      '<div class="item-row' + (mode === "items" ? " items-mode" : "") + '" data-id="' + esc(item.id) + '">' +
+      '<div class="item-row' + (mode === "items" ? " items-mode" : "") + (item.bought ? " is-bought" : "") + '" data-id="' + esc(item.id) + '">' +
         (mode === "shop"
-          ? '<input class="check" type="checkbox" ' + (item.bought ? "checked" : "") + ' data-act="toggle">'
+          ? '<button class="tick-wrap" type="button" data-act="toggle-row" aria-label="Mark bought">' + (item.bought ? "✓" : "") + "</button>"
           : "") +
         '<div class="item-main"' + (mode === "shop" ? ' data-act="toggle-row"' : "") + ">" +
           '<div class="item-name' + (item.bought ? " bought" : "") + '">' + esc(item.name) + "</div>" +
@@ -792,32 +865,44 @@
     updateHeader();
     const root = document.getElementById("historyScroll");
     if (!state.history.length) {
-      root.innerHTML = '<div class="empty"><h3>No weekly history yet</h3><p>Finish a shopping week to keep a record of what you bought.</p></div>';
+      root.innerHTML = '<div class="empty"><h3>No weekly history yet</h3><p>Select items, tick what you bought, then save. Bought and missed items will show up here.</p></div>';
       return;
     }
     const weeks = [...state.history].reverse();
     let html = "";
     weeks.forEach((trip) => {
-      const bought = trip.items.filter((i) => i.bought).length;
+      const boughtItems = trip.items.filter((i) => i.bought);
+      const missedItems = trip.items.filter((i) => !i.bought);
       const open = !!openHistory[trip.id];
       html += '<div class="history-card' + (open ? " open" : "") + '" data-id="' + esc(trip.id) + '">';
       html += '<button type="button" class="history-head" data-act="toggle-week">';
       html += '<div><div class="history-title">' + esc(trip.label || trip.weekKey) + "</div>";
-      html += '<div class="history-sub">' + bought + " of " + trip.items.length + " bought" +
+      html += '<div class="history-sub">' + boughtItems.length + " bought · " + missedItems.length + " missed" +
         (trip.auto ? " · auto-saved" : "") + "</div></div>";
       html += "<div>" + (open ? "▴" : "▾") + "</div></button>";
       html += '<div class="history-body">';
-      trip.items.forEach((item) => {
-        html += '<div class="history-item"><span>' + esc(item.name) +
-          (item.qty ? " · " + esc(item.qty) + (item.unit ? " " + esc(item.unit) : "") : "") +
-          '</span><span class="' + (item.bought ? "ok" : "no") + '">' +
-          (item.bought ? "Bought" : "Missed") + "</span></div>";
-      });
+      html += historyGroupHtml("Bought", boughtItems, true);
+      html += historyGroupHtml("Missed", missedItems, false);
       html += '<div style="margin-top:8px"><button class="add-week-btn" type="button" data-act="copy">Copy missed items to this week</button></div>';
       html += "</div></div>";
     });
     html += '<div style="padding:8px 0 20px"><button class="btn btn-ghost" type="button" id="clearHistory">Clear all history</button></div>';
     root.innerHTML = html;
+  }
+
+  function historyGroupHtml(title, items, bought) {
+    let html = '<div class="history-group-title ' + (bought ? "ok" : "no") + '">' + title + " (" + items.length + ")</div>";
+    if (!items.length) {
+      html += '<div class="history-item"><span class="item-meta">None</span></div>';
+      return html;
+    }
+    items.forEach((item) => {
+      html += '<div class="history-item"><span>' + esc(item.name) +
+        (item.qty ? " · " + esc(item.qty) + (item.unit ? " " + esc(item.unit) : "") : "") +
+        '</span><span class="' + (bought ? "ok" : "no") + '">' +
+        (bought ? "✓ Bought" : "Missed") + "</span></div>";
+    });
+    return html;
   }
 
   function findShop(id) { return state.currentList.find((i) => i.id === id); }
@@ -829,14 +914,18 @@
   }
 
   document.getElementById("shopScroll").addEventListener("click", (e) => {
+    if (e.target.id === "emptyPickBtn" || e.target.closest("#emptyPickBtn")) {
+      openPicker();
+      return;
+    }
     const row = e.target.closest(".item-row");
     if (!row) return;
     const item = findShop(row.dataset.id);
     if (!item) return;
     const actEl = e.target.closest("[data-act]");
     const act = actEl ? actEl.dataset.act : "";
-    if (act === "toggle" || e.target.classList.contains("check") || act === "toggle-row") {
-      item.bought = act === "toggle" ? !!e.target.checked : !item.bought;
+    if (act === "toggle" || act === "toggle-row") {
+      item.bought = !item.bought;
       save(); renderShop();
     } else if (act === "inc") { changeQty(item, 1); renderShop(); }
     else if (act === "dec") { changeQty(item, -1); renderShop(); }
@@ -922,12 +1011,9 @@
     document.getElementById("editQty").value = item.qty || 1;
     document.getElementById("editUnit").value = item.unit || "";
     const stapleBox = document.getElementById("editStaple");
-    if (source === "catalog") {
-      stapleBox.checked = !!item.staple;
-      stapleBox.parentElement.style.display = "block";
-    } else {
-      stapleBox.parentElement.style.display = "none";
-    }
+    const stapleField = document.getElementById("stapleField");
+    if (stapleField) stapleField.style.display = "none";
+    if (stapleBox) stapleBox.checked = !!item.staple;
     document.getElementById("modalBackdrop").classList.add("show");
     document.getElementById("editName").focus();
   }
@@ -980,9 +1066,6 @@
     }
     const item = { id: uid(), name, category: "Other", qty: 1, unit: "pcs", staple: true };
     state.catalog.push(item);
-    state.currentList.push({
-      id: uid(), catalogId: item.id, name, category: item.category, qty: 1, unit: "pcs", bought: false
-    });
     input.value = "";
     save();
     renderItems();
@@ -995,25 +1078,87 @@
 
   document.getElementById("finishBtn").addEventListener("click", () => {
     if (!state.currentList.length) {
-      alert("Add items before saving this week's shop.");
+      alert("Select items from the preloaded list first.");
       return;
     }
-    if (!confirm("Save this week to history and start a fresh staple list?")) return;
+    if (!confirm("Save this week? Ticked items are bought. Unticked items are missed. Both go to History.")) return;
     const w = currentWeek();
-    state.history.push({
-      id: uid(),
-      weekKey: state.currentWeekKey || w.key,
-      label: state.currentWeekLabel || w.label,
-      finishedAt: new Date().toISOString(),
-      auto: false,
-      items: state.currentList.map((i) => ({ ...i }))
-    });
+    archiveCurrentWeek(false);
     startWeek(w);
     setTab("history");
   });
 
   document.querySelectorAll(".bottom-nav button").forEach((btn) => {
     btn.addEventListener("click", () => setTab(btn.dataset.tab));
+  });
+
+  function addToWeek(catalogItem) {
+    if (state.currentList.some((x) => x.catalogId === catalogItem.id)) return;
+    state.currentList.push({
+      id: uid(),
+      catalogId: catalogItem.id,
+      name: catalogItem.name,
+      category: catalogItem.category,
+      qty: catalogItem.qty,
+      unit: catalogItem.unit,
+      bought: false
+    });
+  }
+
+  function removeFromWeek(catalogId) {
+    state.currentList = state.currentList.filter((i) => i.catalogId !== catalogId);
+  }
+
+  function renderPicker() {
+    const root = document.getElementById("pickerList");
+    if (!state.catalog.length) {
+      root.innerHTML = '<div class="empty"><p>Add items on the Items tab first.</p></div>';
+      return;
+    }
+    const groups = groupByCategory(state.catalog);
+    let html = "";
+    CATEGORIES.forEach((cat) => {
+      const rows = groups[cat];
+      if (!rows.length) return;
+      html += '<div class="cat-block"><div class="cat-title">' + esc(cat) + '</div><div class="card">';
+      rows.forEach((item) => {
+        const picked = state.currentList.some((x) => x.catalogId === item.id);
+        html += '<button type="button" class="picker-item' + (picked ? " picked" : "") + '" data-id="' + esc(item.id) + '">' +
+          '<span class="mark">✓</span><span class="item-main"><span class="item-name">' + esc(item.name) +
+          '</span><div class="item-meta">' + esc(item.qty) + (item.unit ? " " + esc(item.unit) : "") +
+          "</div></span></button>";
+      });
+      html += "</div></div>";
+    });
+    root.innerHTML = html;
+  }
+
+  function openPicker() {
+    renderPicker();
+    document.getElementById("pickerBackdrop").classList.add("show");
+  }
+
+  function closePicker() {
+    document.getElementById("pickerBackdrop").classList.remove("show");
+    renderShop();
+    renderItems();
+  }
+
+  document.getElementById("pickItemsBtn").addEventListener("click", openPicker);
+  document.getElementById("cancelPicker").addEventListener("click", closePicker);
+  document.getElementById("donePicker").addEventListener("click", closePicker);
+  document.getElementById("pickerBackdrop").addEventListener("click", (e) => {
+    if (e.target.id === "pickerBackdrop") closePicker();
+  });
+  document.getElementById("pickerList").addEventListener("click", (e) => {
+    const btn = e.target.closest(".picker-item");
+    if (!btn) return;
+    const item = findCatalog(btn.dataset.id);
+    if (!item) return;
+    if (state.currentList.some((x) => x.catalogId === item.id)) removeFromWeek(item.id);
+    else addToWeek(item);
+    save();
+    btn.classList.toggle("picked", state.currentList.some((x) => x.catalogId === item.id));
   });
 
   ensureCurrentWeek();

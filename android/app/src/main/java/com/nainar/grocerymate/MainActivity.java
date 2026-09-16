@@ -101,8 +101,9 @@ public class MainActivity extends Activity {
             return;
         }
         webView.evaluateJavascript(
-                "(function(){var m=document.getElementById('modalBackdrop');"
-                        + "if(m&&m.classList.contains('show')){m.classList.remove('show');return '1';}"
+                "(function(){var ids=['pickerBackdrop','modalBackdrop'];"
+                        + "for(var i=0;i<ids.length;i++){var m=document.getElementById(ids[i]);"
+                        + "if(m&&m.classList.contains('show')){m.classList.remove('show');return '1';}}"
                         + "return '0';})()",
                 value -> {
                     if ("\"1\"".equals(value)) {
