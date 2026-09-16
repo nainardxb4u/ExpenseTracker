@@ -318,7 +318,7 @@
 
     .footer-actions {
       flex: 0 0 auto;
-      padding: 10px 16px 12px;
+      padding: 10px 16px 16px;
       padding-left: max(16px, var(--safe-l));
       padding-right: max(16px, var(--safe-r));
       background: var(--bg);
@@ -391,9 +391,15 @@
       display: flex;
       background: var(--card);
       border-top: 1px solid var(--line);
-      padding-top: 6px;
-      padding-bottom: max(22px, calc(var(--safe-b) + 14px));
-      min-height: calc(var(--nav-h) + 12px);
+      padding-top: 8px;
+      padding-bottom: 12px;
+    }
+
+    .bottom-space {
+      flex: 0 0 56px;
+      height: 56px;
+      min-height: 56px;
+      background: var(--card);
     }
 
     nav.bottom-nav button {
@@ -430,7 +436,7 @@
       max-width: 720px;
       background: var(--card);
       border-radius: 20px 20px 0 0;
-      padding: 16px 16px calc(16px + var(--safe-b));
+      padding: 16px 16px calc(48px + var(--safe-b));
       max-height: 88dvh;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
@@ -604,6 +610,7 @@
     <button type="button" data-tab="items"><span class="nav-ico">📋</span><span class="nav-lab">Items</span></button>
     <button type="button" data-tab="history"><span class="nav-ico">📅</span><span class="nav-lab">History</span></button>
   </nav>
+  <div class="bottom-space" aria-hidden="true"></div>
 </div>
 
 <div class="modal-backdrop" id="modalBackdrop">

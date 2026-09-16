@@ -33,6 +33,7 @@ public class MainActivity extends Activity {
                 ViewGroup.LayoutParams.MATCH_PARENT));
         setContentView(webView);
         applySystemBarPadding();
+        webView.requestApplyInsets();
 
         WebSettings settings = webView.getSettings();
         settings.setJavaScriptEnabled(true);
@@ -69,23 +70,21 @@ public class MainActivity extends Activity {
     }
 
     private void applySystemBarPadding() {
+        float density = getResources().getDisplayMetrics().density;
+        int minBottom = Math.round(40 * density);
+        webView.setPadding(0, 0, 0, minBottom);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            getWindow().setDecorFitsSystemWindows(false);
+            getWindow().setDecorFitsSystemWindows(true);
             webView.setOnApplyWindowInsetsListener((v, insets) -> {
-                int types = WindowInsets.Type.systemBars() | WindowInsets.Type.ime();
-                android.graphics.Insets bars = insets.getInsets(types);
-                int extraBottom = (int) (12 * getResources().getDisplayMetrics().density);
-                v.setPadding(bars.left, bars.top, bars.right, bars.bottom + extraBottom);
-                return WindowInsets.CONSUMED;
+                android.graphics.Insets ime = insets.getInsets(WindowInsets.Type.ime());
+                android.graphics.Insets bars = insets.getInsets(WindowInsets.Type.navigationBars());
+                int bottom = Math.max(minBottom, bars.bottom + Math.round(24 * density));
+                bottom = Math.max(bottom, ime.bottom);
+                v.setPadding(0, 0, 0, bottom);
+                return insets;
             });
         } else {
             webView.setFitsSystemWindows(true);
-            int extraBottom = (int) (16 * getResources().getDisplayMetrics().density);
-            webView.setPadding(
-                    webView.getPaddingLeft(),
-                    webView.getPaddingTop(),
-                    webView.getPaddingRight(),
-                    extraBottom);
         }
     }
 
