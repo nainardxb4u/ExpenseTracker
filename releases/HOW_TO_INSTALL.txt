@@ -1,0 +1,25 @@
+Weekly Grocery Android app
+==========================
+
+File:    GroceryMate.apk
+Package: com.nainar.grocerymate
+Name:    Weekly Grocery
+Needs:   Android 5.0 or newer (phones and tablets, works offline)
+
+How to install
+--------------
+1. Download GroceryMate.apk from this folder (or the GitHub release/source).
+2. Copy it to your phone (Download, Drive, WhatsApp, USB, email).
+3. Open the file on the phone.
+4. If Android asks, allow installing apps from this source.
+5. Tap Install, then Open.
+
+How to use each week
+--------------------
+1. Tap "Select from preloaded list" and pick this week's groceries.
+2. Tick each item you bought.
+3. Tap "Save bought & missed".
+4. History keeps bought items and missed (unticked) items for that week.
+
+Items tab: add, edit, or delete the preloaded list.
+Your list and weekly history stay on the phone.
