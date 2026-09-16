@@ -74,11 +74,18 @@ public class MainActivity extends Activity {
             webView.setOnApplyWindowInsetsListener((v, insets) -> {
                 int types = WindowInsets.Type.systemBars() | WindowInsets.Type.ime();
                 android.graphics.Insets bars = insets.getInsets(types);
-                v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+                int extraBottom = (int) (12 * getResources().getDisplayMetrics().density);
+                v.setPadding(bars.left, bars.top, bars.right, bars.bottom + extraBottom);
                 return WindowInsets.CONSUMED;
             });
         } else {
             webView.setFitsSystemWindows(true);
+            int extraBottom = (int) (16 * getResources().getDisplayMetrics().density);
+            webView.setPadding(
+                    webView.getPaddingLeft(),
+                    webView.getPaddingTop(),
+                    webView.getPaddingRight(),
+                    extraBottom);
         }
     }
 
